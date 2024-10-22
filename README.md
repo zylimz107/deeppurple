@@ -52,17 +52,26 @@ Add my OpenAI API key(**ask me when you want to set up, or you can use your own 
 if using intelliJ, go to run > Edit Configurations: look for Environment Variables: Paste"OPENAI_API_KEY= (openai key here) ". 
 
 5. Build the Project
+
 Maven Tool Window:
 
 Open the Maven tool window (View > Tool Windows > Maven).
+
 You should see your project listed there.
+
 Build the Project:
 
 In the Maven tool window, navigate to:
+
 Lifecycle > clean
-Right-click on clean and select Run. This removes previous build artifacts.
+
+Right-click on clean and select Run.
+This removes previous build artifacts.
+
 Do the same for install:
+
 Lifecycle > install
+
 Right-click on install and select Run. This will compile the code and package the application.
 
 If using terminal and not IDE: mvn clean install
