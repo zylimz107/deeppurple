@@ -46,17 +46,19 @@ logging.level.org.springframework.cache=DEBUG
 Add my OpenAI API key(**ask me when you want to set up, or you can use your own if you have**) to your environment variables: 
 if using intelliJ, go to run > Edit Configurations: look for Environment Variables: Paste"OPENAI_API_KEY= (openai key here) ". 
 
-4. Run
+4. Run BackendApplication
 
 5. If you are familiar with postman, you can test it with the address: http://localhost:8080/api/communications.
-- Use a json for POST method, example:
+Use a json for POST method, example:
 {
     "content": "I am happy!"
 }
 
-6. Else, you can setup the react provided:
+6. Else, you can setup the simple react provided:
    
 **Frontend Instructions**
+Note that this frontend is just for testing purposes, there is no aesthetic consideration or extra functionality.
+
 Install dependencies: Navigate to the frontend folder and install the required dependencies:
 
 npm install
@@ -69,9 +71,13 @@ npm start
 Operations:
 
 Save: Input content and select the "Save" operation to store a new communication.
+
 Update: Provide the communication ID and new content to update an existing communication.
+
 Delete: Enter the communication ID to delete a specific communication.
+
 Get by ID: Fetch a communication by its ID and view the emotional analysis results.
+
 Get All: Retrieve and display all communications stored in the backend.
 
 Ensure that the backend is running and accessible at http://localhost:8080 for proper communication with the React frontend.
