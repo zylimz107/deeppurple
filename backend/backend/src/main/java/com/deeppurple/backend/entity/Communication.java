@@ -2,6 +2,8 @@ package com.deeppurple.backend.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -14,9 +16,19 @@ public class Communication {
 
     private String content;
 
-    private String primaryEmotion; // New field for the primary emotion
-    private String secondaryEmotions; // New field for secondary emotions
-    private String summary; // New field for a brief analysis summary
+    // List of secondary emotions as @ElementCollection (embeddable type)
+    @ElementCollection
+    @CollectionTable(name = "communication_secondary_emotions", joinColumns = @JoinColumn(name = "communication_id"))
+    private List<EmotionDetails> secondaryEmotions;
+
+    // Primary emotion stored as an embeddable type
+    @Embedded
+    private EmotionDetails primaryEmotion;
+
+    private String summary;
+
+    private String modelName; // Add field for the model used
+    private String classificationType; // Add field for emotion classification type (e.g., "Positive", "Negative", etc.)
 
     @Column(nullable = false, updatable = false) // Ensure this column is not updated after creation
     private LocalDateTime timestamp;

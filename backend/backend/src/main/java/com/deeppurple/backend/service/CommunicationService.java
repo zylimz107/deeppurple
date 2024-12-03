@@ -1,11 +1,14 @@
 package com.deeppurple.backend.service;
 
 import com.deeppurple.backend.entity.Communication;
+import com.deeppurple.backend.entity.EmotionDetails;
 import com.deeppurple.backend.repository.CommunicationRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class CommunicationService {
@@ -22,19 +25,29 @@ public class CommunicationService {
         return repository.findAll();
     }
 
-    // Save new communication and analyze emotion
-    public Mono<Communication> saveCommunication(Communication communication) {
-        return openAIService.analyzeEmotion(communication.getContent())
+    // Save new communication with model and classification type
+    public Mono<Communication> saveCommunication(String modelName, String classificationType, Communication communication) {
+        return openAIService.analyzeEmotionWithModel(communication.getContent(), modelName, classificationType)
                 .map(emotionAnalysis -> {
                     // Extract values from the emotion analysis
-                    String primaryEmotion = (String) emotionAnalysis.get("primaryEmotion");
-                    List<String> secondaryEmotions = (List<String>) emotionAnalysis.get("secondaryEmotions");
+                    Map<String, Object> primaryEmotionData = (Map<String, Object>) emotionAnalysis.get("primaryEmotion");
+                    String primaryEmotion = (String) primaryEmotionData.get("emotion");
+                    int primaryEmotionPercentage = (int) primaryEmotionData.get("percentage");
+
+                    List<Map<String, Object>> secondaryEmotionsData = (List<Map<String, Object>>) emotionAnalysis.get("secondaryEmotions");
+                    List<EmotionDetails> secondaryEmotions = secondaryEmotionsData.stream()
+                            .map(emotion -> new EmotionDetails((String) emotion.get("emotion"), (int) emotion.get("percentage")))
+                            .collect(Collectors.toList());
+
                     String summary = (String) emotionAnalysis.get("summary");
 
                     // Set the fields in the communication object
-                    communication.setPrimaryEmotion(primaryEmotion);
-                    communication.setSecondaryEmotions(String.join(", ", secondaryEmotions));
+                    communication.setPrimaryEmotion(new EmotionDetails(primaryEmotion, primaryEmotionPercentage));
+                    communication.setSecondaryEmotions(secondaryEmotions);
                     communication.setSummary(summary);
+                    System.out.println("Primary Emotion: " + communication.getPrimaryEmotion());
+                    System.out.println("Secondary Emotions: " + communication.getSecondaryEmotions());
+
 
                     return repository.save(communication);
                 });
@@ -45,21 +58,28 @@ public class CommunicationService {
         return Mono.justOrEmpty(repository.findById(id)); // Return Mono.empty() if not found
     }
 
-    // Update communication by ID (Re-analyze the content for emotion)
-    public Mono<Communication> updateCommunication(Long id, Communication updatedCommunication) {
+    // Update communication by ID with re-analysis
+    public Mono<Communication> updateCommunication(Long id, String modelName, String classificationType, Communication updatedCommunication) {
         return getCommunicationById(id)
                 .flatMap(existingCommunication -> {
                     existingCommunication.setContent(updatedCommunication.getContent());
 
                     // Re-analyze the emotion for the updated content
-                    return openAIService.analyzeEmotion(existingCommunication.getContent())
+                    return openAIService.analyzeEmotionWithModel(existingCommunication.getContent(), modelName, classificationType)
                             .map(emotionAnalysis -> {
-                                String primaryEmotion = (String) emotionAnalysis.get("primaryEmotion");
-                                List<String> secondaryEmotions = (List<String>) emotionAnalysis.get("secondaryEmotions");
+                                Map<String, Object> primaryEmotionData = (Map<String, Object>) emotionAnalysis.get("primaryEmotion");
+                                String primaryEmotion = (String) primaryEmotionData.get("emotion");
+                                int primaryEmotionPercentage = (int) primaryEmotionData.get("percentage");
+
+                                List<Map<String, Object>> secondaryEmotionsData = (List<Map<String, Object>>) emotionAnalysis.get("secondaryEmotions");
+                                List<EmotionDetails> secondaryEmotions = secondaryEmotionsData.stream()
+                                        .map(emotion -> new EmotionDetails((String) emotion.get("emotion"), (int) emotion.get("percentage")))
+                                        .collect(Collectors.toList());
+
                                 String summary = (String) emotionAnalysis.get("summary");
 
-                                existingCommunication.setPrimaryEmotion(primaryEmotion);
-                                existingCommunication.setSecondaryEmotions(String.join(", ", secondaryEmotions));
+                                existingCommunication.setPrimaryEmotion(new EmotionDetails(primaryEmotion, primaryEmotionPercentage));
+                                existingCommunication.setSecondaryEmotions(secondaryEmotions);
                                 existingCommunication.setSummary(summary);
 
                                 return repository.save(existingCommunication);

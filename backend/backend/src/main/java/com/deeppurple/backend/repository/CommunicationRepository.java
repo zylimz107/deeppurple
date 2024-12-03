@@ -16,4 +16,9 @@ public interface CommunicationRepository extends JpaRepository<Communication, Lo
 
     // Example of pagination and sorting
     Page<Communication> findByPrimaryEmotion(String primaryEmotion, Pageable pageable);
+
+    // New queries for extended functionality
+    List<Communication> findByModelName(String modelName); // Fetch by model name
+    List<Communication> findByClassificationType(String classificationType); // Fetch by classification type
+    Page<Communication> findByModelNameAndClassificationType(String modelName, String classificationType, Pageable pageable); // Combine filters with pagination
 }

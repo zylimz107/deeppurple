@@ -1,13 +1,17 @@
 package com.deeppurple.backend.controller;
 
-import com.deeppurple.backend.dto.CommunicationDTO; // Import the DTO
+import com.deeppurple.backend.dto.CommunicationDTO;
 import com.deeppurple.backend.entity.Communication;
+import com.deeppurple.backend.entity.EmotionDetails;
 import com.deeppurple.backend.service.CommunicationService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/communications")
@@ -24,13 +28,29 @@ public class CommunicationController {
         return Flux.fromIterable(service.getAllCommunications());
     }
 
-    // Save a new communication
+    // Save a new communication with model and classification type
     @PostMapping
-    public Mono<ResponseEntity<Communication>> saveCommunication(@Valid @RequestBody CommunicationDTO communicationDTO) {
+    public Mono<ResponseEntity<Communication>> saveCommunication(
+            @Valid @RequestBody CommunicationDTO communicationDTO) {
         Communication communication = new Communication();
+        communication.setModelName(communicationDTO.getModelName());
+        communication.setClassificationType(communicationDTO.getClassificationType());
         communication.setContent(communicationDTO.getContent());
+        EmotionDetails primaryEmotion = communicationDTO.getPrimaryEmotion();
+        if (primaryEmotion != null) {
+            communication.setPrimaryEmotion(primaryEmotion); // Set EmotionDetails object (with emotion and percentage)
+        }
 
-        return service.saveCommunication(communication)
+        // Extract and set secondary emotions as a list of EmotionDetails
+        List<EmotionDetails> secondaryEmotions = communicationDTO.getSecondaryEmotions();
+        if (secondaryEmotions != null && !secondaryEmotions.isEmpty()) {
+            communication.setSecondaryEmotions(secondaryEmotions); // Set list of EmotionDetails
+        }
+
+        communication.setSummary(communicationDTO.getSummary());
+
+        return service.saveCommunication(communicationDTO.getModelName(),
+                        communicationDTO.getClassificationType(), communication)
                 .map(savedCommunication -> ResponseEntity.ok(savedCommunication))
                 .defaultIfEmpty(ResponseEntity.badRequest().build());
     }
@@ -43,15 +63,31 @@ public class CommunicationController {
                 .defaultIfEmpty(ResponseEntity.notFound().build());  // Return 404 if not found
     }
 
-    // Update communication by ID
+    // Update communication by ID with model and classification type
     @PutMapping("/{id}")
-    public Mono<ResponseEntity<Communication>> updateCommunication(@PathVariable Long id, @RequestBody CommunicationDTO dto) {
+    public Mono<ResponseEntity<Communication>> updateCommunication(
+            @PathVariable Long id,
+            @Valid @RequestBody CommunicationDTO communicationDTO) {
         Communication updatedCommunication = new Communication();
-        updatedCommunication.setContent(dto.getContent());
+        updatedCommunication.setModelName(communicationDTO.getModelName());
+        updatedCommunication.setClassificationType(communicationDTO.getClassificationType());
+        updatedCommunication.setContent(communicationDTO.getContent());
+        EmotionDetails primaryEmotion = communicationDTO.getPrimaryEmotion();
+        if (primaryEmotion != null) {
+            updatedCommunication.setPrimaryEmotion(primaryEmotion); // Set EmotionDetails object (with emotion and percentage)
+        }
 
-        return service.updateCommunication(id, updatedCommunication)
-                .map(updated -> ResponseEntity.ok(updated)) // Return 200 OK with the updated communication
-                .defaultIfEmpty(ResponseEntity.notFound().build()); // Return 404 if not found
+        // Extract and set secondary emotions as a list of EmotionDetails
+        List<EmotionDetails> secondaryEmotions = communicationDTO.getSecondaryEmotions();
+        if (secondaryEmotions != null && !secondaryEmotions.isEmpty()) {
+            updatedCommunication.setSecondaryEmotions(secondaryEmotions); // Set list of EmotionDetails
+        }
+        updatedCommunication.setSummary(communicationDTO.getSummary());
+
+        return service.updateCommunication(id, communicationDTO.getModelName(),
+                        communicationDTO.getClassificationType(), updatedCommunication)
+                .map(updated -> ResponseEntity.ok(updated))
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     // Delete communication by ID
