@@ -27,63 +27,49 @@ This repository contains the backend for the **Deep Purple** project, a text ana
    git clone https://github.com/zylimz107/deeppurple.git
    cd deeppurple/backend
 
-2. If using Open IntelliJ IDEA.
+2. Or if using IntelliJ IDEA (Easiest method and less errors).
 Import the Project:
-Click on "Open" and select the directory of your Spring Boot project (the one containing the pom.xml file).
+Click on "File" > New > project from version control. Select git, put https://github.com/zylimz107/deeppurple.git in the URL box.
+Press Clone.
 
 
-3. Database Setup:
+4. Database Setup:
 
-Ensure that you have PostgreSQL installed and running. Create a database named deeppurple and update the database credentials in src/main/resources/application.properties:
+The database runs on aws RDS with postgre.
 
-It should look like this:
+Your application.properties should look like this:
 spring.application.name=backend
-spring.datasource.url=jdbc:postgresql://localhost:5432/deeppurple
-spring.datasource.username=yourpostgresUsername
-spring.datasource.password=YourPasswordHere 
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.cache.caffeine.spec=maximumSize=100, expireAfterAccess=10m
-logging.level.org.springframework.cache=DEBUG
+spring.datasource.url=jdbc:postgresql://<endpoint URL>:5432/<RDS database name>
+spring.datasource.username=RDSusername
+spring.datasource.password=RDSpassword
 
-4. Set Up OpenAI API Key:
 
-Add my OpenAI API key(**ask me when you want to set up, or you can use your own if you have**) to your environment variables: 
-if using intelliJ, go to run > Edit Configurations: look for Environment Variables: Paste"OPENAI_API_KEY= (openai key here) ". 
+4. Set Up OpenAI API Key and RDS credentials in environment variables:
+
+Add my OpenAI API key, RDSusername, RDSpassword(**ask me when you want to set up, or you can use your own if you have**) to your environment variables: 
+if using intelliJ,after running the application once go to run > Edit Configurations: look for Environment Variables under backendapplication: Paste"OPENAI_API_KEY= (openai key here); username=...; password=... ". 
 
 5. Build the Project
 
-Maven Tool Window:
+IntelliJ:
 
-Open the Maven tool window (View > Tool Windows > Maven).
+in maven toolbar on the right side:
 
-You should see your project listed there.
+the ide would probably have prompted to build.
+reload project if not.
 
-Build the Project:
-
-In the Maven tool window, navigate to:
-
-Lifecycle > clean
-
-Right-click on clean and select Run.
-This removes previous build artifacts.
-
-Do the same for install:
-
-Lifecycle > install
-
-Right-click on install and select Run. This will compile the code and package the application.
-
-If using terminal and not IDE: mvn clean install
+In the ide: 
+go to Build > build project
 
 6. Run BackendApplication.java on intelliJ
 
-If using terminal and not IDE: mvn spring-boot:run
 
 7. If you are familiar with postman, you can test it with the address: http://localhost:8080/api/communications.
 Use a json for POST method, example:
 {
-    "content": "I am happy!"
+  "content": "I am real glad you're here",
+  "modelName": "gpt-4o-mini",
+  "classificationType": "neutral"
 }
 
 8. Else, you can setup the simple react provided:
