@@ -164,8 +164,8 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
         </div>
         <div><strong>Summary:</strong> {fetchedData.summary || 'N/A'}</div>
         <div><strong>Timestamp:</strong> {fetchedData.timestamp ? new Date(fetchedData.timestamp).toLocaleString() : 'N/A'}</div>
-    </div>
-)}
+            </div>
+            )}
 
         </div>
     );
