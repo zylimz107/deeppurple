@@ -31,7 +31,7 @@ public class OpenAIService {
 
         // Construct a customized prompt based on the model and classification type
         String prompt = "While being extremely biased towards the classification type:\"" + classificationType + "\", identify the primary and secondary emotions in the following text: \"" + content + "\". "
-                + "Please respond with a JSON object containing the primaryEmotion with its percentage, secondaryEmotions with their percentages, and summary, remember to make them really biased.";
+                + "Please respond with a JSON object containing the primaryEmotion with its percentage, secondaryEmotions with their percentages, and summary, remember to make them really biased. The percentages should be a total of 100.";
 
         if ("positive-negative-neutral".equals(classificationType)) {
             prompt = "Classify the emotions in the text as Positive, Negative, or Neutral. " + prompt;
@@ -47,7 +47,7 @@ public class OpenAIService {
         Map<String, Object> requestBody = Map.of(
                 "model", modelName,
                 "messages", messages,
-                "max_tokens", 100 // Increase max_tokens to ensure you can capture the entire response
+                "max_tokens", 1000 // Increase max_tokens to ensure you can capture the entire response
         );
 
         return webClient.post()
