@@ -31,13 +31,7 @@ public class OpenAIService {
 
         // Construct a customized prompt based on the model and classification type
         String prompt = "While being extremely biased towards the classification type:\"" + classificationType + "\", identify the primary and secondary emotions in the following text: \"" + content + "\". "
-                + "Please respond with a JSON object containing the primaryEmotion with its percentage, secondaryEmotions with their percentages, and summary, remember to make them really biased. The percentages should be a total of 100.";
-
-        if ("positive-negative-neutral".equals(classificationType)) {
-            prompt = "Classify the emotions in the text as Positive, Negative, or Neutral. " + prompt;
-        } else if ("emotion-category".equals(classificationType)) {
-            prompt = "Classify the emotions in the text into detailed categories. " + prompt;
-        }
+                + "Please respond with a JSON object containing the primaryEmotion with its percentage, secondaryEmotions with their percentages, an (impartially assessed) confidenceRating out of 100 and the summary. The percentages should be a total of 100.";
 
         // Create the chat message structure
         List<Map<String, String>> messages = List.of(

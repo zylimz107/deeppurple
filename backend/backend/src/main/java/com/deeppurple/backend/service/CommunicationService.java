@@ -40,11 +40,13 @@ public class CommunicationService {
                             .collect(Collectors.toList());
 
                     String summary = (String) emotionAnalysis.get("summary");
+                    int confidenceRating = (int) emotionAnalysis.get("confidenceRating");
 
                     // Set the fields in the communication object
                     communication.setPrimaryEmotion(new EmotionDetails(primaryEmotion, primaryEmotionPercentage));
                     communication.setSecondaryEmotions(secondaryEmotions);
                     communication.setSummary(summary);
+                    communication.setConfidenceRating(confidenceRating);
                     System.out.println("Primary Emotion: " + communication.getPrimaryEmotion());
                     System.out.println("Secondary Emotions: " + communication.getSecondaryEmotions());
 
