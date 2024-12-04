@@ -48,6 +48,7 @@ public class CommunicationController {
         }
 
         communication.setSummary(communicationDTO.getSummary());
+        communication.setConfidenceRating(communicationDTO.getConfidenceRating());
 
         return service.saveCommunication(communicationDTO.getModelName(),
                         communicationDTO.getClassificationType(), communication)
@@ -83,6 +84,7 @@ public class CommunicationController {
             updatedCommunication.setSecondaryEmotions(secondaryEmotions); // Set list of EmotionDetails
         }
         updatedCommunication.setSummary(communicationDTO.getSummary());
+        updatedCommunication.setConfidenceRating(communicationDTO.getConfidenceRating());
 
         return service.updateCommunication(id, communicationDTO.getModelName(),
                         communicationDTO.getClassificationType(), updatedCommunication)

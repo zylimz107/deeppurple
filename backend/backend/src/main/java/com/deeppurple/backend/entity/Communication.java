@@ -26,6 +26,7 @@ public class Communication {
     private EmotionDetails primaryEmotion;
 
     private String summary;
+    private int confidenceRating;
 
     private String modelName; // Add field for the model used
     private String classificationType; // Add field for emotion classification type (e.g., "Positive", "Negative", etc.)
