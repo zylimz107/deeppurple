@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectItem } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import CommunicationForm from './CommunicationForm';
+import CommunicationForm from "@/components/CommunicationForm/CommunicationForm.js";
+import LoginRegister from "@/components/LoginPage/Login.js"
 
 const App = () => {
     const [response, setResponse] = useState(null);
@@ -30,6 +31,9 @@ const App = () => {
     return (
         <div style={{ padding: '20px' }}>
             <h1>Deep Purple Analysis</h1>
+            <div>
+                <LoginRegister />
+            </div>
             <CommunicationForm 
                 setResponse={setResponse} 
                 setAllCommunications={setAllCommunications} 
@@ -102,6 +106,7 @@ const App = () => {
                 </div>
             )}
         </div>
+
     );
 };
 
