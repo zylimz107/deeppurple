@@ -1,29 +1,40 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select"
+  
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator"
 
 const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotification, clearNotification, clearResponse }) => {
     const [content, setContent] = useState('');
-    const [operation, setOperation] = useState('save');
+    const [operation, setOperation] = useState('');
     const [id, setId] = useState('');
-    const [modelName, setModelName] = useState('gpt-4o-mini'); // Default model name
-    const [classificationType, setClassificationType] = useState('positive'); // Default classification type
-    const [fetchedData, setFetchedData] = useState(null); // State for fetched data
+    const [modelName, setModelName] = useState('');
+    const [classificationType, setClassificationType] = useState('');
+    const [fetchedData, setFetchedData] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        clearNotification(); // Clear notification on submit
-        clearResponse(); // Clear response on submit
-        setFetchedData(null); // Clear fetched data on submit
-        setAllCommunications([]); // Clear all communications on submit
-        
+        clearNotification();
+        clearResponse();
+        setFetchedData(null);
+        setAllCommunications([]);
+
         try {
             let res;
-
-            const dataToSend = {
-                content,
-                modelName,
-                classificationType
-            };
+            const dataToSend = { content, modelName, classificationType };
 
             if (operation === 'save') {
                 res = await axios.post('http://localhost:8080/api/communications', dataToSend);
@@ -31,26 +42,20 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                 res = await axios.put(`http://localhost:8080/api/communications/${id}`, dataToSend);
             } else if (operation === 'delete') {
                 await axios.delete(`http://localhost:8080/api/communications/${id}`);
-                // Notify the deletion
                 setDeleteNotification(`Communication with ID ${id} has been deleted.`);
-                // Reset fields after deletion
                 setContent('');
                 setId('');
-                return; // Don't set response for delete
+                return;
             } else if (operation === 'get') {
                 res = await axios.get(`http://localhost:8080/api/communications/${id}`);
-                // Update fetchedData if communication is found
-                if (res.data) {
-                    setFetchedData(res.data); // Store fetched data
-                }
-                return; // Don't set response for POST/PUT/DELETE
+                if (res.data) setFetchedData(res.data);
+                return;
             }
 
             setResponse(res.data);
-            // If saved or updated, reset the input fields
             if (operation === 'save' || operation === 'update') {
                 setContent('');
-                setId(''); // Clear ID field after save/update
+                setId('');
             }
         } catch (error) {
             setResponse({ error: error.message });
@@ -58,116 +63,144 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
     };
 
     const handleGetAll = async () => {
-        clearNotification(); // Clear notification on get all
-        clearResponse(); // Clear response on get all
+        clearNotification();
+        clearResponse();
         try {
             const res = await axios.get('http://localhost:8080/api/communications');
-            setAllCommunications(res.data); // Update the list of all communications
+            setAllCommunications(res.data);
         } catch (error) {
             setResponse({ error: error.message });
         }
     };
 
     return (
-        <div>
-            <form onSubmit={handleSubmit}>
-                {operation !== 'get' && operation !== 'delete' && (
-                    <div>
-                        <label>
-                            Content:
-                            <textarea
+        <Card className="p-4">
+            <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    {operation !== 'get' && operation !== 'delete' && (
+                        <div>
+                            <Label htmlFor="content">Content</Label>
+                            <Textarea
+                                id="content"
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
+                                placeholder="Enter communication content"
                                 required={operation === 'save' || operation === 'update'}
                                 maxLength={1000}
                             />
-                        </label>
-                    </div>
-                )}
-                <div>
-                    <label>
-                        Operation:
-                        <select value={operation} onChange={(e) => setOperation(e.target.value)}>
-                            <option value="save">Save</option>
-                            <option value="update">Update</option>
-                            <option value="delete">Delete</option>
-                            <option value="get">Get by ID</option>
-                        </select>
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Model Name:
-                        <select value={modelName} onChange={(e) => setModelName(e.target.value)}>
-                            <option value="gpt-4o-mini">GPT-4o-Mini</option>
-                            <option value="gpt-4">GPT-4</option>
-                            <option value="gpt-3">GPT-3</option>
-                            {/* Add more models as needed */}
-                        </select>
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Classification Type:
-                        <select value={classificationType} onChange={(e) => setClassificationType(e.target.value)}>
-                            <option value="positive">Positive</option>
-                            <option value="negative">Negative</option>
-                            <option value="neutral">Neutral</option>
-                        </select>
-                    </label>
-                </div>
-                {operation !== 'save' && (
+                        </div>
+                    )}
+                    
                     <div>
-                        <label>
-                            ID:
-                            <input
+                        <Label htmlFor="operation">Operation</Label>
+                        <Select
+                            id="operation"
+                            value={operation}
+                            onValueChange={setOperation}
+                        >
+                        <SelectTrigger className="w-[300px]">
+                            <SelectValue placeholder="select operation" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem value="save">Save</SelectItem>
+                                <SelectItem value="update">Update</SelectItem>
+                                <SelectItem value="delete">Delete</SelectItem>
+                                <SelectItem value="get">Get by ID</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                        </Select>
+
+                    </div>
+                    <div>
+                        <Label htmlFor="modelName">Model Name</Label>
+                        <Select
+                            id="modelName"
+                            value={modelName}
+                            onValueChange={setModelName}
+                        >
+                        <SelectTrigger className="w-[300px]">
+                            <SelectValue placeholder="select model" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem value="gpt-4o-mini">GPT-4o-Mini</SelectItem>
+                                <SelectItem value="gpt-4">GPT-4</SelectItem>
+                                <SelectItem value="gpt-3">GPT-3</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                        </Select>
+                    </div>
+                    <div>
+                        <Label htmlFor="classificationType">Classification Type</Label>
+                        <Select
+                            id="classificationType"
+                            value={classificationType}
+                            onValueChange={setClassificationType}
+                        >
+                        <SelectTrigger className="w-[300px]">
+                            <SelectValue placeholder="select classification" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem value="positive">Positive</SelectItem>
+                                <SelectItem value="negative">Negative</SelectItem>
+                                <SelectItem value="neutral">Neutral</SelectItem>
+                            </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    {operation !== 'save' && (
+                        <div>
+                            <Label htmlFor="id">ID</Label>
+                            <Input
+                                id="id"
                                 type="number"
                                 value={id}
                                 onChange={(e) => setId(e.target.value)}
+                                placeholder="Enter communication ID"
                                 required={operation !== 'delete'}
+                                className = "w-[300px]"
                             />
-                        </label>
+                        </div>
+                    )}
+                                    <Separator className="w-[300px] my-4" />
+                    <Button type="submit" className="w-[300px]">
+                        Submit
+                    </Button>
+                </form>
+
+                <Button onClick={handleGetAll} className="w-[300px] mt-4">
+                    Get All Communications
+                </Button>
+                <Separator className="my-4" />
+
+                {fetchedData && (
+                    <div className="mt-6">
+                        <h3 className="text-lg font-semibold">Fetched Communication</h3>
+                        <p><strong>ID:</strong> {fetchedData.id || 'N/A'}</p>
+                        <p><strong>Content:</strong> {fetchedData.content || 'N/A'}</p>
+                        <p><strong>Primary Emotion:</strong> {fetchedData.primaryEmotion?.emotion} ({fetchedData.primaryEmotion?.percentage}%)</p>
+                        <p><strong>Secondary Emotions:</strong></p>
+                        {fetchedData.secondaryEmotions?.length > 0 ? (
+                            <ul>
+                                {fetchedData.secondaryEmotions.map((secEmotion, index) => (
+                                    <li key={index}>
+                                        {secEmotion.emotion} ({secEmotion.percentage}%)
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p>No secondary emotions available</p>
+                        )}
+                        <p><strong>Classification:</strong> {fetchedData.classificationType}</p>
+                        <p><strong>Confidence Rating:</strong> {fetchedData.confidenceRating}</p>
+                        <p><strong>Summary:</strong> {fetchedData.summary || 'N/A'}</p>
+                        <p><strong>Timestamp:</strong> {fetchedData.timestamp ? new Date(fetchedData.timestamp).toLocaleString() : 'N/A'}</p>
                     </div>
                 )}
-                <button type="submit">Submit</button>
-            </form>
-            <button onClick={handleGetAll}>Get All Communications</button>
-
-            {/* Display fetched data if available */}
-
-            {fetchedData && (
-                <div>
-                    <h3>Fetched Communication:</h3>
-                    <div><strong>ID:</strong> {fetchedData.id || 'N/A'}</div>
-                    <div><strong>Content:</strong> {fetchedData.content || 'N/A'}</div>
-                    <div>
-                       <strong>Primary Emotion:</strong>
-                        {fetchedData.primaryEmotion ? (
-                            `${fetchedData.primaryEmotion.emotion} (${fetchedData.primaryEmotion.percentage}%)`
-                        ) : (
-                            'N/A'
-                        )}
-                    </div>
-                <div>
-            <strong>Secondary Emotions:</strong>
-            {fetchedData.secondaryEmotions && fetchedData.secondaryEmotions.length > 0 ? (
-                <ul>
-                    {fetchedData.secondaryEmotions.map((secEmotion, index) => (
-                        <li key={index}>
-                            {secEmotion.emotion} ({secEmotion.percentage}%)
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                'No secondary emotions available'
-            )}
-        </div>
-        <div><strong>Summary:</strong> {fetchedData.summary || 'N/A'}</div>
-        <div><strong>Timestamp:</strong> {fetchedData.timestamp ? new Date(fetchedData.timestamp).toLocaleString() : 'N/A'}</div>
-            </div>
-            )}
-
-        </div>
+            </CardContent>
+        </Card>
     );
 };
 
