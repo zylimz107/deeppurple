@@ -5,7 +5,7 @@ This repository contains the backend for the **Deep Purple** project, a text ana
 ## Features
 
 - RESTful API for managing communications.
-- Database connectivity with PostgreSQL. (Temporarily, in the later phase we can move to RDS)
+- Database connectivity RDS postgre
 - Hibernate for ORM support.
 - Caching support using Caffeine.
 - Reactive programming support with Spring WebFlux.
