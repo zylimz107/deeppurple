@@ -17,12 +17,12 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator"
 import { Terminal } from "lucide-react"
- 
 import {
   Alert,
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert"
+import { Pie, PieChart, Tooltip } from "recharts"; 
 
 const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotification, clearNotification, clearResponse }) => {
     const [content, setContent] = useState('');
@@ -94,6 +94,21 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
             return "Please select an operation.";
         }
     };
+
+      // Prepare pie chart data from response
+  const pieChartData = fetchedData ? [
+    {
+      name: fetchedData.primaryEmotion.emotion,
+      value: fetchedData.primaryEmotion.percentage,
+      fill: "hsl(var(--chart-1))", // You can customize the color for primary emotion
+    },
+    ...fetchedData.secondaryEmotions.map((secEmotion, index) => {
+      const fillColor = `hsl(var(--chart-${index + 2}))`;
+      return {
+        name: secEmotion.emotion,
+        value: secEmotion.percentage,
+        fill: fillColor, };})
+  ] : [];
 
     return (
         <Card className="p-4">
@@ -203,19 +218,35 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                     Get All Communications
                 </Button>
                 <Separator className="my-4" />
+                
 
                 {fetchedData && (
                     <div className="mt-6">
-                        <h3 className="text-lg font-semibold">Fetched Communication</h3>
+                        <h3 className="text-xl font-semibold">Fetched Communication</h3>
+                                      {/* Emotion Pie Chart */}
+                      <div className="mb-4">
+                        <h4 className="font-medium text-purple-800">Emotion Distribution</h4>
+                        <PieChart width={300} height={300}>
+                        <Pie
+                            data={pieChartData}
+                            dataKey="value"
+                            nameKey="name"
+                            innerRadius={60}
+                            outerRadius={80}
+                            label
+                        />
+                          <Tooltip />
+                        </PieChart>
+                    </div>
                         <p><strong>ID:</strong> {fetchedData.id || 'N/A'}</p>
                         <p><strong>Content:</strong> {fetchedData.content || 'N/A'}</p>
-                        <p><strong>Primary Emotion:</strong> {fetchedData.primaryEmotion?.emotion} ({fetchedData.primaryEmotion?.percentage}%)</p>
+                        <p><strong>Primary Emotion:</strong> {fetchedData.primaryEmotion?.emotion}</p>
                         <p><strong>Secondary Emotions:</strong></p>
                         {fetchedData.secondaryEmotions?.length > 0 ? (
                             <ul>
                                 {fetchedData.secondaryEmotions.map((secEmotion, index) => (
                                     <li key={index}>
-                                        {secEmotion.emotion} ({secEmotion.percentage}%)
+                                        {secEmotion.emotion}
                                     </li>
                                 ))}
                             </ul>
