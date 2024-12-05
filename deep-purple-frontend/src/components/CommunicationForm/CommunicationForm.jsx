@@ -16,6 +16,13 @@ import {
   
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator"
+import { Terminal } from "lucide-react"
+ 
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert"
 
 const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotification, clearNotification, clearResponse }) => {
     const [content, setContent] = useState('');
@@ -73,10 +80,25 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
         }
     };
 
+    const getDescription = (operation) => {
+        switch (operation) {
+          case "save":
+            return "Analyze the content and save the analysis.";
+          case "update":
+            return "Update existing analysis data by ID.";
+          case "delete":
+            return "delete analysis data by ID.";
+          case "get":
+            return "Get analysis data by its ID.";
+          default:
+            return "Please select an operation.";
+        }
+    };
+
     return (
         <Card className="p-4">
             <CardContent>
-                <form onSubmit={handleSubmit} className="w-[300px] space-y-4">
+                <form onSubmit={handleSubmit} className="w-[1000px] space-y-4">
                     {operation !== 'get' && operation !== 'delete' && (
                         <div>
                             <Label htmlFor="content">Content</Label>
@@ -98,7 +120,7 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                             value={operation}
                             onValueChange={setOperation}
                         >
-                        <SelectTrigger className="w-[300px]">
+                        <SelectTrigger className="w-[500px]">
                             <SelectValue placeholder="select operation" />
                         </SelectTrigger>
                         <SelectContent>
@@ -110,6 +132,13 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                             </SelectGroup>
                         </SelectContent>
                         </Select>
+                        <Separator className="w-[500px] my-2" />
+                        <Alert className="w-[500px] border-purple-800">
+                          <AlertDescription className="text-purple-800">
+                          {getDescription(operation)}
+                          </AlertDescription>
+                        </Alert>
+
 
                     </div>
                     <div>
@@ -119,7 +148,7 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                             value={modelName}
                             onValueChange={setModelName}
                         >
-                        <SelectTrigger className="w-[300px]">
+                        <SelectTrigger className="w-[500px]">
                             <SelectValue placeholder="select model" />
                         </SelectTrigger>
                         <SelectContent>
@@ -138,7 +167,7 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                             value={classificationType}
                             onValueChange={setClassificationType}
                         >
-                        <SelectTrigger className="w-[300px]">
+                        <SelectTrigger className="w-[500px]">
                             <SelectValue placeholder="select classification" />
                         </SelectTrigger>
                         <SelectContent>
@@ -160,17 +189,17 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                                 onChange={(e) => setId(e.target.value)}
                                 placeholder="Enter communication ID"
                                 required={operation !== 'delete'}
-                                className = "w-[300px]"
+                                className = "w-[500px]"
                             />
                         </div>
                     )}
-                                    <Separator className="w-[300px] my-4" />
-                    <Button type="submit" className="w-[300px]">
+                                    <Separator className="w-[500px] my-4" />
+                    <Button type="submit" className="w-[500px]">
                         Submit
                     </Button>
                 </form>
 
-                <Button onClick={handleGetAll} className="w-[300px] mt-4">
+                <Button onClick={handleGetAll} className="w-[500px] mt-4">
                     Get All Communications
                 </Button>
                 <Separator className="my-4" />

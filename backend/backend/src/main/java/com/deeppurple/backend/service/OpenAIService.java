@@ -30,7 +30,7 @@ public class OpenAIService {
         logger.info("Calling OpenAI API for content: {} with model: {} and classification type: {}", content, modelName, classificationType);
 
         // Construct a customized prompt based on the model and classification type
-        String prompt = "While being extremely biased towards the classification type:\"" + classificationType + "\", identify the primary and secondary emotions in the following text: \"" + content + "\". "
+        String prompt = "Please only identify primary and secondary emotions related to:\"" + classificationType + "\" in the following text: \"" + content + "\". "
                 + "Please respond with a JSON object containing the primaryEmotion with its percentage, secondaryEmotions with their percentages, an (impartially assessed) confidenceRating out of 100 and the summary. The percentages should be a total of 100.";
 
         // Create the chat message structure

@@ -3,6 +3,7 @@
     "target": "ESNext",
     "module": "ESNext",
     "jsx": "react-jsx",
+    "allowJs": true,
     "moduleResolution": "Node",
     "strict": true,
     "esModuleInterop": true,
@@ -15,7 +16,8 @@
       "@utils/*": ["./src/lib/utils/*"],
       "@ui/*": ["./src/components/ui/*"],
       "@lib/*": ["./src/lib/*"],
-      "@hooks/*": ["./src/hooks/*"]
+      "@hooks/*": ["./src/hooks/*"],
+      "@pages/*": ["./src/pages/*"]
     },
     "resolveJsonModule": true
   },
