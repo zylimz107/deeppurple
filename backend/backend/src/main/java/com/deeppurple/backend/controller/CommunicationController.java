@@ -5,18 +5,42 @@ import com.deeppurple.backend.entity.Communication;
 import com.deeppurple.backend.entity.EmotionDetails;
 import com.deeppurple.backend.service.CommunicationService;
 import jakarta.validation.Valid;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/communications")
 public class CommunicationController {
     private final CommunicationService service;
+    private String extractTextFromDocx(MultipartFile file) throws IOException {
+        try (XWPFDocument document = new XWPFDocument(file.getInputStream())) {
+            StringBuilder text = new StringBuilder();
+            for (XWPFParagraph paragraph : document.getParagraphs()) {
+                text.append(paragraph.getText()).append("\n");
+            }
+            return text.toString().trim();
+        }
+    }
+    private String extractTextFromPdf(MultipartFile file) throws IOException {
+        try (PDDocument document = PDDocument.load(file.getInputStream())) {
+            PDFTextStripper pdfStripper = new PDFTextStripper();
+            return pdfStripper.getText(document).trim();
+        }
+    }
+
+
+
+
 
     public CommunicationController(CommunicationService service) {
         this.service = service;
@@ -100,4 +124,36 @@ public class CommunicationController {
                         ? Mono.just(ResponseEntity.noContent().build()) // Return 204 No Content for successful deletion
                         : Mono.just(ResponseEntity.notFound().build())); // Return 404 if not found
     }
+
+    @PostMapping("/upload")
+    public Mono<Communication> uploadAndAnalyzeFile(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("modelName") String modelName,
+            @RequestParam("classificationType") String classificationType) {
+
+        String fileType = file.getContentType();
+        String extractedText;
+
+        try {
+            if ("application/vnd.openxmlformats-officedocument.wordprocessingml.document".equals(fileType)) {
+                extractedText = extractTextFromDocx(file);
+            } else if ("application/pdf".equals(fileType)) {
+                extractedText = extractTextFromPdf(file);
+            } else if ("text/plain".equals(fileType)) {
+                extractedText = new String(file.getBytes(), StandardCharsets.UTF_8);
+            } else {
+                return Mono.error(new RuntimeException("Unsupported file type: " + fileType));
+            }
+        } catch (IOException e) {
+            return Mono.error(new RuntimeException("Error reading file: " + e.getMessage(), e));
+        }
+
+        Communication communication = new Communication();
+        communication.setContent(extractedText);
+        communication.setModelName(modelName);
+        communication.setClassificationType(classificationType);
+
+        return service.saveCommunication(modelName, classificationType, communication);
+    }
+
 }

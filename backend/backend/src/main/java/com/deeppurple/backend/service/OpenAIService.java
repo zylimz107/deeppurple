@@ -29,9 +29,27 @@ public class OpenAIService {
     public Mono<Map<String, Object>> analyzeEmotionWithModel(String content, String modelName, String classificationType) {
         logger.info("Calling OpenAI API for content: {} with model: {} and classification type: {}", content, modelName, classificationType);
 
+        String format = "{\n" +
+                "  \"primaryEmotion\": {\n" +
+                "    \"emotion\": \"doubt\",\n" +
+                "    \"percentage\": 40\n" +
+                "  },\n" +
+                "  \"secondaryEmotions\": [\n" +
+                "    {\n" +
+                "      \"emotion\": \"fear\",\n" +
+                "      \"percentage\": 30\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"emotion\": \"insecurity\",\n" +
+                "      \"percentage\": 30\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"confidenceRating\": 75,\n" +
+                "  \"summary\": \"The text evokes feelings of doubt, fear, and insecurity, suggesting an underlying struggle with self-perception.\"\n" +
+                "}";
         // Construct a customized prompt based on the model and classification type
-        String prompt = "Please only identify primary and secondary emotions related to:\"" + classificationType + "\" in the following text: \"" + content + "\". "
-                + "Please respond with a JSON object containing the primaryEmotion with its percentage, secondaryEmotions with their percentages, an (impartially assessed) confidenceRating out of 100 and the summary. The percentages should be a total of 100.";
+        String prompt = "Please only consider:\"" + classificationType + "\" emotions in the following text: \"" + content + "\". "
+                + "Please respond with a JSON object containing the primaryEmotion with its percentage, secondaryEmotions with their percentages, an impartial confidenceRating out of 100 and the summary. The percentages should be a total of 100. Here's an example:\"" + format;
 
         // Create the chat message structure
         List<Map<String, String>> messages = List.of(
