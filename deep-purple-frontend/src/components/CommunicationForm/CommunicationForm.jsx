@@ -12,17 +12,15 @@ import {
     SelectLabel,
     SelectTrigger,
     SelectValue,
-  } from "@/components/ui/select"
-  
+} from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator"
-import { Terminal } from "lucide-react"
+import { Separator } from "@/components/ui/separator";
+import { Pie, PieChart, Tooltip } from "recharts";
 import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert"
-import { Pie, PieChart, Tooltip } from "recharts"; 
+    Alert,
+    AlertDescription,
+    AlertTitle,
+} from "@/components/ui/alert";
 
 const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotification, clearNotification, clearResponse }) => {
     const [content, setContent] = useState('');
@@ -30,7 +28,12 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
     const [id, setId] = useState('');
     const [modelName, setModelName] = useState('');
     const [classificationType, setClassificationType] = useState('');
+    const [file, setFile] = useState(null); // State for the uploaded file
     const [fetchedData, setFetchedData] = useState(null);
+
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]); // Set the file selected by the user
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -38,12 +41,24 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
         clearResponse();
         setFetchedData(null);
         setAllCommunications([]);
-
+    
         try {
             let res;
             const dataToSend = { content, modelName, classificationType };
-
-            if (operation === 'save') {
+    
+            // If the operation is "upload", create FormData and append the file along with modelName and classificationType
+            if (operation === 'upload') {
+                const formData = new FormData();
+                formData.append('file', file); // Append the file
+                formData.append('modelName', modelName); // Append the model name
+                formData.append('classificationType', classificationType); // Append classification type
+    
+                res = await axios.post('http://localhost:8080/api/communications/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+            } else if (operation === 'save') {
                 res = await axios.post('http://localhost:8080/api/communications', dataToSend);
             } else if (operation === 'update') {
                 res = await axios.put(`http://localhost:8080/api/communications/${id}`, dataToSend);
@@ -58,9 +73,9 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                 if (res.data) setFetchedData(res.data);
                 return;
             }
-
+    
             setResponse(res.data);
-            if (operation === 'save' || operation === 'update') {
+            if (operation === 'save' || operation === 'update' || operation === 'upload') {
                 setContent('');
                 setId('');
             }
@@ -87,28 +102,32 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
           case "update":
             return "Update existing analysis data by ID.";
           case "delete":
-            return "delete analysis data by ID.";
+            return "Delete analysis data by ID.";
           case "get":
             return "Get analysis data by its ID.";
+          case "upload":
+            return "Upload a file for analysis.";
           default:
             return "Please select an operation.";
         }
     };
 
-      // Prepare pie chart data from response
-  const pieChartData = fetchedData ? [
-    {
-      name: fetchedData.primaryEmotion.emotion,
-      value: fetchedData.primaryEmotion.percentage,
-      fill: "hsl(var(--chart-1))", // You can customize the color for primary emotion
-    },
-    ...fetchedData.secondaryEmotions.map((secEmotion, index) => {
-      const fillColor = `hsl(var(--chart-${index + 2}))`;
-      return {
-        name: secEmotion.emotion,
-        value: secEmotion.percentage,
-        fill: fillColor, };})
-  ] : [];
+    // Prepare pie chart data from response
+    const pieChartData = fetchedData ? [
+        {
+            name: fetchedData.primaryEmotion.emotion,
+            value: fetchedData.primaryEmotion.percentage,
+            fill: "hsl(var(--chart-1))", // Customize the color for primary emotion
+        },
+        ...fetchedData.secondaryEmotions.map((secEmotion, index) => {
+            const fillColor = `hsl(var(--chart-${index + 2}))`;
+            return {
+                name: secEmotion.emotion,
+                value: secEmotion.percentage,
+                fill: fillColor,
+            };
+        })
+    ] : [];
 
     return (
         <Card className="p-4">
@@ -127,7 +146,7 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                             />
                         </div>
                     )}
-                    
+
                     <div>
                         <Label htmlFor="operation">Operation</Label>
                         <Select
@@ -135,27 +154,40 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                             value={operation}
                             onValueChange={setOperation}
                         >
-                        <SelectTrigger className="w-[500px]">
-                            <SelectValue placeholder="select operation" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                <SelectItem value="save">Save</SelectItem>
-                                <SelectItem value="update">Update</SelectItem>
-                                <SelectItem value="delete">Delete</SelectItem>
-                                <SelectItem value="get">Get by ID</SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
+                            <SelectTrigger className="w-[500px]">
+                                <SelectValue placeholder="select operation" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem value="save">Save</SelectItem>
+                                    <SelectItem value="update">Update</SelectItem>
+                                    <SelectItem value="delete">Delete</SelectItem>
+                                    <SelectItem value="get">Get by ID</SelectItem>
+                                    <SelectItem value="upload">Upload File</SelectItem> {/* New Upload option */}
+                                </SelectGroup>
+                            </SelectContent>
                         </Select>
                         <Separator className="w-[500px] my-2" />
                         <Alert className="w-[500px] border-purple-800">
-                          <AlertDescription className="text-purple-800">
-                          {getDescription(operation)}
-                          </AlertDescription>
+                            <AlertDescription className="text-purple-800">
+                                {getDescription(operation)}
+                            </AlertDescription>
                         </Alert>
-
-
                     </div>
+
+                    {/* File input field for upload */}
+                    {operation === 'upload' && (
+                        <div>
+                            <Label htmlFor="file">Select File</Label>
+                            <Input
+                                type="file"
+                                id="file"
+                                onChange={handleFileChange}
+                                required
+                            />
+                        </div>
+                    )}
+
                     <div>
                         <Label htmlFor="modelName">Model Name</Label>
                         <Select
@@ -163,18 +195,19 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                             value={modelName}
                             onValueChange={setModelName}
                         >
-                        <SelectTrigger className="w-[500px]">
-                            <SelectValue placeholder="select model" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                <SelectItem value="gpt-4o-mini">GPT-4o-Mini</SelectItem>
-                                <SelectItem value="gpt-4">GPT-4</SelectItem>
-                                <SelectItem value="gpt-3">GPT-3</SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
+                            <SelectTrigger className="w-[500px]">
+                                <SelectValue placeholder="select model" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem value="gpt-4o-mini">GPT-4o-Mini</SelectItem>
+                                    <SelectItem value="gpt-4">GPT-4</SelectItem>
+                                    <SelectItem value="gpt-3">GPT-3</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
                         </Select>
                     </div>
+
                     <div>
                         <Label htmlFor="classificationType">Classification Type</Label>
                         <Select
@@ -182,19 +215,20 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                             value={classificationType}
                             onValueChange={setClassificationType}
                         >
-                        <SelectTrigger className="w-[500px]">
-                            <SelectValue placeholder="select classification" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                <SelectItem value="positive">Positive</SelectItem>
-                                <SelectItem value="negative">Negative</SelectItem>
-                                <SelectItem value="neutral">Neutral</SelectItem>
-                            </SelectGroup>
+                            <SelectTrigger className="w-[500px]">
+                                <SelectValue placeholder="select classification" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem value="positive">Positive</SelectItem>
+                                    <SelectItem value="negative">Negative</SelectItem>
+                                    <SelectItem value="neutral">Neutral</SelectItem>
+                                </SelectGroup>
                             </SelectContent>
                         </Select>
                     </div>
-                    {operation !== 'save' && (
+
+                    {operation !== 'upload' && operation !== 'save' && (
                         <div>
                             <Label htmlFor="id">ID</Label>
                             <Input
@@ -204,11 +238,12 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                                 onChange={(e) => setId(e.target.value)}
                                 placeholder="Enter communication ID"
                                 required={operation !== 'delete'}
-                                className = "w-[500px]"
+                                className="w-[500px]"
                             />
                         </div>
                     )}
-                                    <Separator className="w-[500px] my-4" />
+
+                    <Separator className="w-[500px] my-4" />
                     <Button type="submit" className="w-[500px]">
                         Submit
                     </Button>
@@ -218,45 +253,22 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                     Get All Communications
                 </Button>
                 <Separator className="my-4" />
-                
 
                 {fetchedData && (
-                    <div className="mt-6">
-                        <h3 className="text-xl font-semibold">Fetched Communication</h3>
-                                      {/* Emotion Pie Chart */}
-                      <div className="mb-4">
-                        <h4 className="font-medium text-purple-800">Emotion Distribution</h4>
-                        <PieChart width={300} height={300}>
-                        <Pie
-                            data={pieChartData}
-                            dataKey="value"
-                            nameKey="name"
-                            innerRadius={60}
-                            outerRadius={80}
-                            label
-                        />
-                          <Tooltip />
+                    <div className="text-center">
+                        <h2>Analysis Results</h2>
+                        <PieChart width={400} height={400}>
+                            <Pie
+                                data={pieChartData}
+                                dataKey="value"
+                                cx="50%"
+                                cy="50%"
+                                outerRadius={150}
+                                fill="#8884d8"
+                                label
+                            />
+                            <Tooltip />
                         </PieChart>
-                    </div>
-                        <p><strong>ID:</strong> {fetchedData.id || 'N/A'}</p>
-                        <p><strong>Content:</strong> {fetchedData.content || 'N/A'}</p>
-                        <p><strong>Primary Emotion:</strong> {fetchedData.primaryEmotion?.emotion}</p>
-                        <p><strong>Secondary Emotions:</strong></p>
-                        {fetchedData.secondaryEmotions?.length > 0 ? (
-                            <ul>
-                                {fetchedData.secondaryEmotions.map((secEmotion, index) => (
-                                    <li key={index}>
-                                        {secEmotion.emotion}
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>No secondary emotions available</p>
-                        )}
-                        <p><strong>Classification:</strong> {fetchedData.classificationType}</p>
-                        <p><strong>Confidence Rating:</strong> {fetchedData.confidenceRating}</p>
-                        <p><strong>Summary:</strong> {fetchedData.summary || 'N/A'}</p>
-                        <p><strong>Timestamp:</strong> {fetchedData.timestamp ? new Date(fetchedData.timestamp).toLocaleString() : 'N/A'}</p>
                     </div>
                 )}
             </CardContent>

@@ -87,6 +87,7 @@ const AnalysisPage = () => {
                   </ul>
                 ) : 'No secondary emotions available'}
               </div>
+              <div><strong>Model:</strong> {response.modelName || 'N/A'}</div>
               <div><strong>Classification:</strong> {response.classificationType || 'N/A'}</div>
               <div><strong>Confidence Rating:</strong> {response.confidenceRating || 'N/A'}</div>
               <div><strong>Summary:</strong> {response.summary || 'N/A'}</div>

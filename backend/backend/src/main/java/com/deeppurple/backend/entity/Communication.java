@@ -14,6 +14,7 @@ public class Communication {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 10485760)
     private String content;
 
     // List of secondary emotions as @ElementCollection (embeddable type)
