@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { createCategory, getCategoriesByModel } from "@/api";
+import { Input } from "@/components/ui/input"; // Replace with the correct shadcn Input component import
+import { Button } from "@/components/ui/button"; // Replace with the correct shadcn Button component import
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Replace with the correct Card imports
+
 
 const EmotionCategoryManager = ({ selectedModelId }) => {
   const [categories, setCategories] = useState([]);
@@ -35,21 +39,32 @@ const EmotionCategoryManager = ({ selectedModelId }) => {
   }, [selectedModelId]);
 
   return (
-    <div>
-      <h2>Manage Emotion Categories</h2>
-      <input
-        type="text"
-        placeholder="Enter category name"
-        value={newCategoryName}
-        onChange={(e) => setNewCategoryName(e.target.value)}
-      />
-      <button onClick={handleAddCategory}>Add Category</button>
-      <ul>
-        {categories.map((category) => (
-          <li key={category.id}>{category.emotion}</li>
-        ))}
-      </ul>
-    </div>
+    <Card className="p-4 shadow-lg">
+      <CardHeader>
+        <CardTitle className="text-xl font-semibold">Manage Emotion Categories</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center gap-2 mb-4">
+          <Input
+            type="text"
+            placeholder="Enter category name"
+            value={newCategoryName}
+            onChange={(e) => setNewCategoryName(e.target.value)}
+            className="w-full"
+          />
+          <Button onClick={handleAddCategory} variant="default">
+            Add
+          </Button>
+        </div>
+        <ul className="bg-gray-50 p-2 rounded divide-y divide-gray-200">
+          {categories.map((category) => (
+            <li key={category.id} className="py-2 px-3">
+              {category.emotion}
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
   );
 };
 

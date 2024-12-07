@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { getAllModels, createModel, deleteModel } from "@/api";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
-const ModelManagement = () => {
-  const [models, setModels] = useState([]);
+const ModelManagement = ({ refreshModels }) => {
+  const [models, setModels] = useState([]); // Manage models in this component
   const [newModelName, setNewModelName] = useState("");
 
   // Fetch models from the backend
   const fetchModels = async () => {
     try {
       const response = await getAllModels();
-      setModels(response.data);
+      setModels(response.data); // Update the models state
     } catch (error) {
       console.error("Error fetching models:", error);
       alert("Failed to fetch models.");
@@ -25,7 +29,8 @@ const ModelManagement = () => {
     try {
       await createModel(newModelName);
       setNewModelName("");
-      fetchModels(); // Refresh the list of models
+      fetchModels(); // Refresh the list of models after adding a new model
+      refreshModels(); // Optionally call the parent function to update any parent state
     } catch (error) {
       console.error("Error creating model:", error);
       alert(error.response?.data?.message || "Failed to create model");
@@ -37,7 +42,8 @@ const ModelManagement = () => {
     if (!window.confirm("Are you sure you want to delete this model?")) return;
     try {
       await deleteModel(id);
-      fetchModels(); // Refresh the list of models
+      fetchModels(); // Refresh the list of models after deletion
+      refreshModels(); // Optionally call the parent function to update any parent state
     } catch (error) {
       console.error("Error deleting model:", error);
       alert("Failed to delete model");
@@ -50,33 +56,48 @@ const ModelManagement = () => {
   }, []);
 
   return (
-    <div>
-      <h1>Manage Models</h1>
-      <div>
-        <input
-          type="text"
-          placeholder="Enter model name"
-          value={newModelName}
-          onChange={(e) => setNewModelName(e.target.value)}
-        />
-        <button onClick={handleAddModel}>Add Model</button>
-      </div>
-
-      <h2>Model List</h2>
-      {models.length > 0 ? (
-        <ul>
-          {models.map((model) => (
-            <li key={model.id}>
-              <strong>{model.name}</strong>
-              <button onClick={() => handleDeleteModel(model.id)}>
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No models available.</p>
-      )}
+    <div className="w-[500px]">
+      <Card className="p-4 shadow-md">
+        <CardHeader>
+          <CardTitle>Add a New Model</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-2">
+            <Input
+              type="text"
+              placeholder="Enter model name"
+              value={newModelName}
+              onChange={(e) => setNewModelName(e.target.value)}
+              className="w-full"
+            />
+            <Button onClick={handleAddModel} variant="default">
+              Add
+            </Button>
+          </div>
+          <Separator className="w-[420px] my-2" />
+          <div>          
+            {models.length > 0 ? (
+            <ul className="space-y-3">
+              {models.map((model) => (
+                <li
+                  key={model.id}
+                  className="flex justify-between items-center border p-2 rounded shadow-sm"
+                >
+                  <strong className="text-lg">{model.name}</strong>
+                  <Button
+                    onClick={() => handleDeleteModel(model.id)}
+                    variant="destructive"
+                  >
+                    Delete
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-500">No models available.</p>
+          )}</div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
