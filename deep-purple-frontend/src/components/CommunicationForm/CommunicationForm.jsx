@@ -9,7 +9,6 @@ import {
     SelectContent,
     SelectGroup,
     SelectItem,
-    SelectLabel,
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
@@ -19,7 +18,6 @@ import { Pie, PieChart, Tooltip } from "recharts";
 import {
     Alert,
     AlertDescription,
-    AlertTitle,
 } from "@/components/ui/alert";
 import { getAllModels } from "@/api";
 
@@ -31,7 +29,6 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
     const [file, setFile] = useState(null); // State for the uploaded file
     const [fetchedData, setFetchedData] = useState(null);
     const [models, setModels] = useState([]);
-    const [selectedModel, setSelectedModel] = useState(null);
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]); // Set the file selected by the user

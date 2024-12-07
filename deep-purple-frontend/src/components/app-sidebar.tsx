@@ -24,7 +24,7 @@ const items = [
     icon: Inbox,
   },
   {
-    title: "Emotions",
+    title: "Emotion Model Manager",
     url: "/emotion",
     icon: Calendar,
   },
