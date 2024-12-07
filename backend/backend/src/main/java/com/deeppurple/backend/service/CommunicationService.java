@@ -26,8 +26,8 @@ public class CommunicationService {
     }
 
     // Save new communication with model and classification type
-    public Mono<Communication> saveCommunication(String modelName, String classificationType, Communication communication) {
-        return openAIService.analyzeEmotionWithModel(communication.getContent(), modelName, classificationType)
+    public Mono<Communication> saveCommunication(String modelName, Communication communication) {
+        return openAIService.analyzeEmotionWithModel(communication.getContent(), modelName)
                 .map(emotionAnalysis -> {
                     // Extract values from the emotion analysis
                     Map<String, Object> primaryEmotionData = (Map<String, Object>) emotionAnalysis.get("primaryEmotion");
@@ -61,13 +61,13 @@ public class CommunicationService {
     }
 
     // Update communication by ID with re-analysis
-    public Mono<Communication> updateCommunication(Long id, String modelName, String classificationType, Communication updatedCommunication) {
+    public Mono<Communication> updateCommunication(Long id, String modelName, Communication updatedCommunication) {
         return getCommunicationById(id)
                 .flatMap(existingCommunication -> {
                     existingCommunication.setContent(updatedCommunication.getContent());
 
                     // Re-analyze the emotion for the updated content
-                    return openAIService.analyzeEmotionWithModel(existingCommunication.getContent(), modelName, classificationType)
+                    return openAIService.analyzeEmotionWithModel(existingCommunication.getContent(), modelName)
                             .map(emotionAnalysis -> {
                                 Map<String, Object> primaryEmotionData = (Map<String, Object>) emotionAnalysis.get("primaryEmotion");
                                 String primaryEmotion = (String) primaryEmotionData.get("emotion");

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,19 +21,35 @@ import {
     AlertDescription,
     AlertTitle,
 } from "@/components/ui/alert";
+import { getAllModels } from "@/api";
 
 const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotification, clearNotification, clearResponse }) => {
     const [content, setContent] = useState('');
     const [operation, setOperation] = useState('');
     const [id, setId] = useState('');
     const [modelName, setModelName] = useState('');
-    const [classificationType, setClassificationType] = useState('');
     const [file, setFile] = useState(null); // State for the uploaded file
     const [fetchedData, setFetchedData] = useState(null);
+    const [models, setModels] = useState([]);
+    const [selectedModel, setSelectedModel] = useState(null);
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]); // Set the file selected by the user
     };
+
+    const fetchModels = async () => {
+        try {
+          const response = await getAllModels();
+          console.log("Fetched models:", response.data);
+          setModels(response.data);
+        } catch (error) {
+          console.error("Error fetching models:", error);
+        }
+      };
+    
+      useEffect(() => {
+        fetchModels();
+      }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -44,14 +60,13 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
     
         try {
             let res;
-            const dataToSend = { content, modelName, classificationType };
+            const dataToSend = { content, modelName };
     
             // If the operation is "upload", create FormData and append the file along with modelName and classificationType
             if (operation === 'upload') {
                 const formData = new FormData();
                 formData.append('file', file); // Append the file
                 formData.append('modelName', modelName); // Append the model name
-                formData.append('classificationType', classificationType); // Append classification type
     
                 res = await axios.post('http://localhost:8080/api/communications/upload', formData, {
                     headers: {
@@ -191,41 +206,29 @@ const CommunicationForm = ({ setResponse, setAllCommunications, setDeleteNotific
                     <div>
                         <Label htmlFor="modelName">Model Name</Label>
                         <Select
-                            id="modelName"
-                            value={modelName}
-                            onValueChange={setModelName}
-                        >
-                            <SelectTrigger className="w-[500px]">
-                                <SelectValue placeholder="select model" />
+                        id="modelName"
+                        value={modelName} // The current selected model
+                       onValueChange={(value) => setModelName(value)} // Update modelName when a model is selected
+                         >
+                        <SelectTrigger className="w-[500px]">
+                         <SelectValue placeholder="Select model" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectGroup>
-                                    <SelectItem value="gpt-4o-mini">GPT-4o-Mini</SelectItem>
-                                    <SelectItem value="gpt-4">GPT-4</SelectItem>
-                                    <SelectItem value="gpt-3">GPT-3</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div>
-                        <Label htmlFor="classificationType">Classification Type</Label>
-                        <Select
-                            id="classificationType"
-                            value={classificationType}
-                            onValueChange={setClassificationType}
-                        >
-                            <SelectTrigger className="w-[500px]">
-                                <SelectValue placeholder="select classification" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectItem value="positive">Positive</SelectItem>
-                                    <SelectItem value="negative">Negative</SelectItem>
-                                    <SelectItem value="neutral">Neutral</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
+                              <SelectGroup>
+                               {/* Placeholder option */}
+                                <SelectItem value="placeholder" disabled>Select a model</SelectItem>
+                                {models.length > 0 ? (
+                                  models.map((model) => (
+                                <SelectItem key={model.id} value={model.name}>
+                              {model.name}
+                            </SelectItem>
+          ))
+        ) : (
+          <SelectItem value="loading" disabled>Loading models...</SelectItem> 
+        )}
+      </SelectGroup>
+    </SelectContent>
+  </Select>
                     </div>
 
                     {operation !== 'upload' && operation !== 'save' && (

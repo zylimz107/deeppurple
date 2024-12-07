@@ -88,7 +88,6 @@ const AnalysisPage = () => {
                 ) : 'No secondary emotions available'}
               </div>
               <div><strong>Model:</strong> {response.modelName || 'N/A'}</div>
-              <div><strong>Classification:</strong> {response.classificationType || 'N/A'}</div>
               <div><strong>Confidence Rating:</strong> {response.confidenceRating || 'N/A'}</div>
               <div><strong>Summary:</strong> {response.summary || 'N/A'}</div>
               <div><strong>Timestamp:</strong> {response.timestamp ? new Date(response.timestamp).toLocaleString() : 'N/A'}</div>
@@ -115,7 +114,6 @@ const AnalysisPage = () => {
                     </ul>
                   ) : <p>No secondary emotions available</p>}
                 </div>
-                <div><strong>Classification:</strong> {comm.classificationType}</div>
                 <div><strong>Confidence Rating:</strong> {comm.confidenceRating}</div>
                 <div><strong>Summary:</strong> {comm.summary}</div>
                 <div><strong>Timestamp:</strong> {new Date(comm.timestamp).toLocaleString()}</div>
