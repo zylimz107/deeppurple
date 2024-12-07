@@ -14,9 +14,6 @@ public class CommunicationDTO {
     @NotBlank(message = "Model name cannot be empty")
     private String modelName; // Added to specify the model used for analysis
 
-    @NotBlank(message = "Classification type cannot be empty")
-    private String classificationType; // Added to specify the emotion type
-
     private EmotionDetails primaryEmotion; // Updated to capture the primary emotion with percentage
     private List<EmotionDetails> secondaryEmotions; // Updated to capture secondary emotions with percentages
     private String summary; // Optional: to store the analysis summary
@@ -28,10 +25,9 @@ public class CommunicationDTO {
     }
 
     // Parameterized constructor
-    public CommunicationDTO(String content, String modelName, String classificationType, int confidenceRating) {
+    public CommunicationDTO(String content, String modelName, int confidenceRating) {
         this.content = content;
         this.modelName = modelName;
-        this.classificationType = classificationType;
         this.confidenceRating = confidenceRating;
     }
 
@@ -50,14 +46,6 @@ public class CommunicationDTO {
 
     public void setModelName(String modelName) {
         this.modelName = modelName;
-    }
-
-    public String getClassificationType() {
-        return classificationType;
-    }
-
-    public void setClassificationType(String classificationType) {
-        this.classificationType = classificationType;
     }
 
     public EmotionDetails getPrimaryEmotion() {

@@ -11,7 +11,9 @@ import java.util.Optional;
 
 public interface CommunicationRepository extends JpaRepository<Communication, Long> {
     List<Communication> findByPrimaryEmotion(String primaryEmotion);
+
     List<Communication> findByTimestampAfter(LocalDateTime timestamp);
+
     Optional<Communication> findById(Long id);
 
     // Example of pagination and sorting
@@ -19,6 +21,5 @@ public interface CommunicationRepository extends JpaRepository<Communication, Lo
 
     // New queries for extended functionality
     List<Communication> findByModelName(String modelName); // Fetch by model name
-    List<Communication> findByClassificationType(String classificationType); // Fetch by classification type
-    Page<Communication> findByModelNameAndClassificationType(String modelName, String classificationType, Pageable pageable); // Combine filters with pagination
+
 }

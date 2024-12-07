@@ -58,7 +58,6 @@ public class CommunicationController {
             @Valid @RequestBody CommunicationDTO communicationDTO) {
         Communication communication = new Communication();
         communication.setModelName(communicationDTO.getModelName());
-        communication.setClassificationType(communicationDTO.getClassificationType());
         communication.setContent(communicationDTO.getContent());
         EmotionDetails primaryEmotion = communicationDTO.getPrimaryEmotion();
         if (primaryEmotion != null) {
@@ -74,8 +73,7 @@ public class CommunicationController {
         communication.setSummary(communicationDTO.getSummary());
         communication.setConfidenceRating(communicationDTO.getConfidenceRating());
 
-        return service.saveCommunication(communicationDTO.getModelName(),
-                        communicationDTO.getClassificationType(), communication)
+        return service.saveCommunication(communicationDTO.getModelName(), communication)
                 .map(savedCommunication -> ResponseEntity.ok(savedCommunication))
                 .defaultIfEmpty(ResponseEntity.badRequest().build());
     }
@@ -95,7 +93,6 @@ public class CommunicationController {
             @Valid @RequestBody CommunicationDTO communicationDTO) {
         Communication updatedCommunication = new Communication();
         updatedCommunication.setModelName(communicationDTO.getModelName());
-        updatedCommunication.setClassificationType(communicationDTO.getClassificationType());
         updatedCommunication.setContent(communicationDTO.getContent());
         EmotionDetails primaryEmotion = communicationDTO.getPrimaryEmotion();
         if (primaryEmotion != null) {
@@ -110,8 +107,7 @@ public class CommunicationController {
         updatedCommunication.setSummary(communicationDTO.getSummary());
         updatedCommunication.setConfidenceRating(communicationDTO.getConfidenceRating());
 
-        return service.updateCommunication(id, communicationDTO.getModelName(),
-                        communicationDTO.getClassificationType(), updatedCommunication)
+        return service.updateCommunication(id, communicationDTO.getModelName(), updatedCommunication)
                 .map(updated -> ResponseEntity.ok(updated))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
@@ -128,11 +124,11 @@ public class CommunicationController {
     @PostMapping("/upload")
     public Mono<Communication> uploadAndAnalyzeFile(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("modelName") String modelName,
-            @RequestParam("classificationType") String classificationType) {
+            @RequestParam("modelName") String modelName ){
 
         String fileType = file.getContentType();
         String extractedText;
+
 
         try {
             if ("application/vnd.openxmlformats-officedocument.wordprocessingml.document".equals(fileType)) {
@@ -151,9 +147,8 @@ public class CommunicationController {
         Communication communication = new Communication();
         communication.setContent(extractedText);
         communication.setModelName(modelName);
-        communication.setClassificationType(classificationType);
 
-        return service.saveCommunication(modelName, classificationType, communication);
+        return service.saveCommunication(modelName, communication);
     }
 
 }
