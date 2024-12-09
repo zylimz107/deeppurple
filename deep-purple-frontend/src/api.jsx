@@ -44,3 +44,25 @@ export const deleteWordAssociation = (id) =>
 export const getAllModels = () => axios.get(API_MOD_URL);
 export const createModel = (name) => axios.post(API_MOD_URL, null, { params: { name } });
 export const deleteModel = (id) => axios.delete(`${API_MOD_URL}/${id}`);
+
+// user login
+export const loginUser = async (username, password) => {
+    try {
+        const response = await axios.post("http://localhost:8080/users/login", {username, password});
+        return response.data;
+    } catch (error) {
+        console.error("Error logging in", error.response?.data || error.message);
+        throw error;
+    }
+}
+
+// user register
+export const registerUser = async (username, password) => {
+    try{
+        const response = await axios.post("http://localhost:8080/users/register", {username, password});
+        return response.data;
+    } catch (error) {
+        console.error("Error registering", error.response?.data || error.message);
+        throw error;
+    }
+}
