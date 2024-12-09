@@ -5,12 +5,14 @@ import com.deeppurple.backend.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UsersService {
     @Autowired
     private UsersRepository usersRepository;
 
-    public Users registerUser(Users user) {
+    public Users createUser(Users user) {
         return usersRepository.save(user);
     }
 
@@ -24,4 +26,9 @@ public class UsersService {
         }
         return user;
     }
+
+    public List<Users> getAllUsers() {
+        return usersRepository.findAll();
+    }
+
 }
