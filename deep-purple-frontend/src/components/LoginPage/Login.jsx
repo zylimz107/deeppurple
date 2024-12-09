@@ -13,9 +13,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { loginUser, registerUser } from "@/api";
 import { useState } from "react";
 
-
-
-
 export default function LoginRegister() {
   const [loginData, setLoginData] = useState({ username: "", password: "" });
   const [registerData, setRegisterData] = useState({ username: "", password: "" });
