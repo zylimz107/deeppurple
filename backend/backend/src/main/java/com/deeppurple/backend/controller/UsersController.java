@@ -39,21 +39,7 @@ public class UsersController {
         }
     }
 
-    @PostMapping("/admin/create")
-    public ResponseEntity<?> createUser(@RequestBody Users user) {
-        try {
-            Users registeredUser = usersService.createUser(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(registeredUser);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error creating user: " + e.getMessage());
-        }
-    }
 
-    @GetMapping
-    public ResponseEntity<List<Users>> getAllUsers() {
-        List<Users> users = usersService.getAllUsers();
-        return (ResponseEntity<List<Users>>) users;
-    }
 
 
 }
